@@ -1,5 +1,5 @@
 $(document).ready(function() {
-
+/*
 	$( ".timepicker" ).timepicker({
 			minutes: { interval: 15 },
       showNowButton: true,
@@ -11,6 +11,7 @@ $(document).ready(function() {
    		showPeriodLabels: true,
   		//minuteText: 'Min'
 	});
+  */
   /*
   $( ".timepicker" ).after($('<button type="button" class="btn btn-success btn-sm btn-now">Now</button>'));
   $( ".btn-now" ).click(function() {
