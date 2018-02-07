@@ -19,6 +19,7 @@ class ActivityForm(forms.Form):
         attrs={
             'class': 'timepicker',
             'autocomplete': 'off',
+            'type': 'time'
         }
     ))
     """

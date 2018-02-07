@@ -27,10 +27,10 @@ def index(request):
 
 @require_POST
 def addActivity(request, activitysheet_id):
-    
-    post = request.POST.copy()
-    post['start_time'] = convertTime(post['start_time'])
-    post['end_time'] = convertTime(post['end_time'])
+
+    #post = request.POST.copy()
+    #post['start_time'] = convertTime(post['start_time'])
+    #post['end_time'] = convertTime(post['end_time'])
     form = ActivityForm(post)
 
     if form.is_valid():
