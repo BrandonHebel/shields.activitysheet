@@ -23,8 +23,8 @@ class ActivityForm(forms.ModelForm):
         model = Activity
         fields = '__all__'
         widgets = {
-            'start_time': forms.TimeInput(attrs={'class': 'timepicker', 'autocomplete': 'off'}),
-            'end_time': forms.TimeInput(attrs={'class': 'timepicker', 'autocomplete': 'off'}),
+            'start_time': forms.TextInput(attrs={'class': 'timepicker', 'autocomplete': 'off'}),
+            'end_time': forms.TextInput(attrs={'class': 'timepicker', 'autocomplete': 'off'}),
             'activitysheet': forms.HiddenInput()
         }
 """
