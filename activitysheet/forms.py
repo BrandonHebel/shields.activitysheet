@@ -1,7 +1,6 @@
 from django import forms
 from .models import Activity#, DailyActivitySheet
 
-"""
 class ActivityForm(forms.Form):
 
     name = forms.CharField(label='Name', max_length=30)
@@ -17,7 +16,7 @@ class ActivityForm(forms.Form):
             'class': 'timepicker'
         }
     ))
-"""
+    """
 class ActivityForm(forms.ModelForm):
     class Meta:
         model = Activity
@@ -27,6 +26,7 @@ class ActivityForm(forms.ModelForm):
             'end_time': forms.TextInput(attrs={'class': 'timepicker', 'autocomplete': 'off'}),
             'activitysheet': forms.HiddenInput()
         }
+        """
 """
 class ActivitySheetForm(forms.ModelForm):
 	class Meta:
