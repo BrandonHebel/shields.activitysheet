@@ -1,14 +1,10 @@
 from django import forms
-from .models import DailyActivitySheet
+from .models import Activity#, DailyActivitySheet
 
-
+"""
 class ActivityForm(forms.Form):
 
-    name = forms.CharField(label='Name', max_length=30)  # , widget=forms.TextInput(
-    # attrs={
-    #	'class' : 'form-control'
-    #}
-    #))
+    name = forms.CharField(label='Name', max_length=30)
 
     start_time = forms.TimeField(label='Start Time', widget=forms.TimeInput(
         attrs={
@@ -21,7 +17,16 @@ class ActivityForm(forms.Form):
             'class': 'timepicker'
         }
     ))
-
+"""
+class ActivityForm(forms.ModelForm):
+    class Meta:
+        model = Activity
+        fields = '__all__'
+        widgets = {
+            'start_time': forms.TimeInput(attrs={'class': 'timepicker', 'autocomplete': 'off'}),
+            'end_time': forms.TimeInput(attrs={'class': 'timepicker', 'autocomplete': 'off'}),
+            'activitysheet': forms.HiddenInput()
+        }
 """
 class ActivitySheetForm(forms.ModelForm):
 	class Meta:

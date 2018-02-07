@@ -1,7 +1,5 @@
 $(document).ready(function() {
 
-  $(".datepicker").datepicker();
-
 	$( ".timepicker" ).timepicker({
 			minutes: { interval: 15 },
       showNowButton: true,
