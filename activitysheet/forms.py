@@ -7,13 +7,15 @@ class ActivityForm(forms.Form):
 
     start_time = forms.TimeField(label='Start Time', widget=forms.TimeInput(
         attrs={
-            'class': 'timepicker'
+            'class': 'timepicker',
+            'autocomplete': 'false'
         }
     ))
 
     end_time = forms.TimeField(label='End Time', widget=forms.TimeInput(
         attrs={
-            'class': 'timepicker'
+            'class': 'timepicker',
+            'autocomplete': 'false'
         }
     ))
     """
