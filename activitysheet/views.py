@@ -1,20 +1,25 @@
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import authenticate, login, logout, get_user
 
 from .models import DailyActivitySheet, Activity, Person
 from .forms import ActivityForm
 from datetime import datetime
 import calendar
 
-
 def index(request):
+    if not request.user.is_authenticated:
+        return redirect('accounts/login')
+
     # "If there is already a daily activity sheet for today, add to / complete it.  Otherwise create a new daily activity sheet."
-    activitysheet = DailyActivitySheet.objects.filter(date=datetime.now()).first()
+    activitysheet = DailyActivitySheet.objects.filter(
+    date=datetime.now()).filter(user=get_user(request)).first()
     if activitysheet:
         activities = activitysheet.activity_set.all()
     else:
         # @TODO change person equal to user after learning django authentication
-        activitysheet = DailyActivitySheet(person=Person.objects.get(pk=1), date=datetime.now())
+        activitysheet = DailyActivitySheet(user=get_user(request), date=datetime.now())
         activitysheet.save()
         activities = {}
 
@@ -42,7 +47,29 @@ def addActivity(request, activitysheet_id):
 
     return redirect('index')
 
+def viewSheets(request):
+    return render(request, 'activitysheet/view_sheets.html')
+
 # convertTime accepts a string in the format 1:30 PM and returns a string in format 13:30
 def convertTime(time):
 	time = datetime.strptime(time, '%I:%M %p')
 	return time.strftime('%H:%M')
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+            user = authenticate(username=username, password=password)
+            login(request, user)
+            return redirect('index')
+    else:
+        form = UserCreationForm()
+    context = {'form' : form}
+    return render(request, 'registration/register.html', context)
+
+def logout_view(request):
+    logout(request)
+    return render(request, 'registration/logged_out.html')

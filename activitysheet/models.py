@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class Person(models.Model):
 	name = models.CharField(max_length=30)
@@ -7,7 +8,7 @@ class Person(models.Model):
 		return self.name
 
 class DailyActivitySheet(models.Model):
-	person = models.ForeignKey(Person, on_delete=models.CASCADE)
+	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 	date = models.DateField()
 
 	def __str__(self):

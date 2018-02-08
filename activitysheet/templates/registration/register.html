@@ -1,0 +1,14 @@
+{% extends "../activitysheet/base.html" %}
+
+  {% block content %}
+    <div class="container">
+      <form method="post" action="{% url 'register' %}">
+        {% csrf_token %}
+        {% if form.errors %}
+          <p>There are errors!</p>
+        {% endif %}
+        {{ form }}
+        <input type="submit" value="Register">
+      </form>
+    </div>
+  {% endblock %}

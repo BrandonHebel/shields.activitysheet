@@ -1,0 +1,20 @@
+{% extends "../activitysheet/base.html" %}
+  {% block content %}
+      {% if form.errors %}
+      <p>There is a form error!</p>
+      {% endif %}
+
+      {% if next %}
+      <p>Hey, you can't access that page</p>
+      {% endif %}
+      <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+
+        <p>username: {{ form.username }}</p>
+        <p>password: {{ form.password }}</p>
+
+        <p><input type="submit" value="login" label="username"></p>
+        <input type="hidden" name="next" value="{{ next }}" label="password">
+      </form>
+      <a href="{% url 'register' %}"><button type="button" name="button">Register</button></a>
+  {% endblock %}
