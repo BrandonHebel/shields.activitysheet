@@ -13,8 +13,7 @@ def index(request):
         return redirect('accounts/login')
 
     # "If there is already a daily activity sheet for today, add to / complete it.  Otherwise create a new daily activity sheet."
-    activitysheet = DailyActivitySheet.objects.filter(
-    date=datetime.now()).filter(user=get_user(request)).first()
+    activitysheet = DailyActivitySheet.objects.filter(date=datetime.now()).filter(user=get_user(request)).first()
     if activitysheet:
         activities = activitysheet.activity_set.all()
     else:
