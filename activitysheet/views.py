@@ -3,7 +3,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout, get_user
 
-from .models import DailyActivitySheet, Activity, Person
+from .models import DailyActivitySheet, Activity
 from .forms import ActivityForm
 from datetime import datetime
 import calendar
@@ -13,11 +13,11 @@ def index(request):
         return redirect('accounts/login')
 
     # "If there is already a daily activity sheet for today, add to / complete it.  Otherwise create a new daily activity sheet."
-    activitysheet = DailyActivitySheet.objects.filter(date=datetime.now()).filter(user=get_user(request)).first()
+    activitysheet = DailyActivitySheet.objects.filter(
+    date=datetime.now()).filter(user=get_user(request)).first()
     if activitysheet:
         activities = activitysheet.activity_set.all()
     else:
-        # @TODO change person equal to user after learning django authentication
         activitysheet = DailyActivitySheet(user=get_user(request), date=datetime.now())
         activitysheet.save()
         activities = {}
