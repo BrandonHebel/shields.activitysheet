@@ -1,18 +1,23 @@
 <h1>Daily Timesheet - {{ user.username }}</h1>
 <h4>{{ day_of_week }} {{ activitysheet.date }}</h4>
-<table class="table table-striped table-bordered">
+<table class="table table-bordered">
 {% for activity in activities %}
   <tr>
-    <td> {{ activity.name}} </td>
+    <td>{{ activity.name }}</td>
     <td>{{ activity.start_time }}</td>
     <td>{{ activity.end_time }}</td>
+    <td><a href="{% url 'updateActivity' activity.id %}">
+      <button type="button" name="button">Update</button></a>
+      <a href="{% url 'deleteActivity' activity.id %}">
+      <button type="button" name="button">Delete</button></a></td>
+    </td>
   </tr>
 {% endfor %}
 </table>
 <form action="{% url 'addActivity' activitysheet.id %}" method="post">
   <div class="form-group">
     {% csrf_token %}
-    <table class='table'>
+    <table class='table table-sm'>
     {{ form.as_table }}
     </table>
   </div>

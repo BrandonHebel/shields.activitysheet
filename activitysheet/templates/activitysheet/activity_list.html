@@ -1,0 +1,14 @@
+{% extends "activitysheet/base.html" %}
+
+{% block content %}
+  <h3>Timesheet - {{ activitysheet.date }}</h3>
+  <table class="table table-bordered table-sm">
+  {% for activity in activity_list %}
+    <tr>
+      <td>{{ activity.name }}</td>
+      <td>{{ activity.start_time }}</td>
+      <td>{{ activity.end_time }}</td>
+    </tr>
+  {% endfor %}
+  </table>
+{% endblock %}

@@ -1,5 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import UpdateView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout, get_user
 
@@ -29,12 +32,39 @@ def index(request):
 
     return render(request, 'activitysheet/index.html', context)
 
+class DailyActivitySheetList(ListView):
+
+    def get_queryset(self):
+        self.user = self.request.user
+        return DailyActivitySheet.objects.filter(user=self.user)
+
+class ActivityList(ListView):
+
+    def get_queryset(self):
+        self.activitysheet = get_object_or_404(DailyActivitySheet, id=self.kwargs['activitysheet_id'])
+        return Activity.objects.filter(activitysheet=self.activitysheet)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['activitysheet'] = self.activitysheet
+        return context
+
+class ActivityUpdate(UpdateView):
+    model = Activity
+    fields = ['name', 'start_time', 'end_time']
+    template_name_suffix = '_update_form'
+
+def deleteActivity(request, pk):
+    Activity.objects.get(pk=pk).delete()
+    return redirect('index')
+
 @require_POST
 def addActivity(request, activitysheet_id):
+    post=request.POST.copy()
+    post['start_time'] = convertTime(post['start_time'])
+    post['end_time'] = convertTime(post['end_time'])
 
-    #post['start_time'] = convertTime(post['start_time'])
-    #post['end_time'] = convertTime(post['end_time'])
-    form = ActivityForm(request.POST)
+    form = ActivityForm(post)
 
     if form.is_valid():
         new_activity = Activity(
@@ -46,13 +76,22 @@ def addActivity(request, activitysheet_id):
 
     return redirect('index')
 
-def viewSheets(request):
-    return render(request, 'activitysheet/view_sheets.html')
-
-# convertTime accepts a string in the format 1:30 PM and returns a string in format 13:30
+###################
+# function convertTime
+# accepts a string in format 01:30 PM and returns a string in format 13:30
+# also rounds to the nearest specified MINUTE_INCREMENT
 def convertTime(time):
-	time = datetime.strptime(time, '%I:%M %p')
-	return time.strftime('%H:%M')
+    MINUTE_INCREMENT = 15
+    new_time = datetime.strptime(time, '%H:%M')
+    hour = new_time.strftime('%H')
+    minute = new_time.strftime('%M')
+    minute = (round(int(minute) / MINUTE_INCREMENT)*MINUTE_INCREMENT)
+    if minute == 60:
+        hour = int(hour)+1
+        minute = 0
+        if hour == 24:
+            hour = 0
+    return str(hour)+":"+str(minute)
 
 def register(request):
     if request.method == 'POST':
