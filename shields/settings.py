@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['brandonhebel.pythonanywhere.com', 'localhost']
 
-
+SECURE_SSL_REDIRECT = True
 # Application definition
 
 INSTALLED_APPS = [
