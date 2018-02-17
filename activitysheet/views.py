@@ -54,12 +54,12 @@ class ActivityList(ListView):
     def get_queryset(self):
         self.activitysheet = get_object_or_404(DailyActivitySheet, id=self.kwargs['activitysheet_id'])
         return Activity.objects.filter(activitysheet=self.activitysheet)
-    """
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['activitysheet'] = self.activitysheet
         return context
-"""
+        
 class ActivityUpdate(UpdateView):
     form_class = ActivityForm
     model = Activity
