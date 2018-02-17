@@ -4,7 +4,6 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout, get_user
-from django.urls import reverse_lazy
 
 from .models import DailyActivitySheet, Activity
 from .forms import ActivityForm
