@@ -1,7 +1,10 @@
 {% extends "activitysheet/base.html" %}
   {% block content %}
     <table class="table table-sm">
-      {{ form.as_table}}
-      <tr><td><input type="submit" value="Update" /></td></tr>
+      <form action="{% url 'updateActivity' activity_id %}" method="post">
+        {% csrf_token %}
+        {{ form.as_table}}
+        <tr><td><input type="submit" value="Update" /></td></tr>
+      </form>
     </table>
   {% endblock %}

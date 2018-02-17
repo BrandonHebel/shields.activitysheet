@@ -10,7 +10,7 @@ urlpatterns = [
 	path('register', views.register, name='register'),
 	path('viewSheets', DailyActivitySheetList.as_view(), name='viewSheets'),
 	path('viewActivities/<int:activitysheet_id>', ActivityList.as_view(), name='viewActivities'),
-	path('updateActivity/<int:pk>', ActivityUpdate.as_view(), name="updateActivity"),
+	path('updateActivityForm/<int:pk>', ActivityUpdate.as_view(), name="updateActivityForm"),
+	path('updateActivity/<int:pk>', views.updateActivity, name="updateActivity"),
 	path('deleteActivity/<int:pk>', views.deleteActivity, name='deleteActivity')
-	#path('editActivity', views.ActivityView, name='editActivity')
 ]

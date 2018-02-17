@@ -1,6 +1,6 @@
 from django import forms
 from .models import Activity#, DailyActivitySheet
-
+"""
 class ActivityForm(forms.Form):
 
     name = forms.CharField(label='Name', max_length=30)
@@ -24,13 +24,32 @@ class ActivityForm(forms.Form):
 class ActivityForm(forms.ModelForm):
     class Meta:
         model = Activity
-        fields = '__all__'
+        fields = ['name', 'start_time', 'end_time']
         widgets = {
-            'start_time': forms.TextInput(attrs={'class': 'timepicker', 'autocomplete': 'off'}),
-            'end_time': forms.TextInput(attrs={'class': 'timepicker', 'autocomplete': 'off'}),
-            'activitysheet': forms.HiddenInput()
+            'name': forms.TextInput(
+                attrs={
+                    'required': False,
+                }
+            ),
+            'start_time': forms.TimeInput(
+                format='%I:%M %p',
+                attrs={
+                    'required': False,
+                    'autocomplete': 'off',
+                    'type': 'time',
+                }
+            ),
+            'end_time': forms.TimeInput(
+                format='%I:%M %p',
+                attrs={
+                    'required': False,
+                    'autocomplete': 'off',
+                    'type': 'time',
+                }
+            )
         }
-        """
+    #def clean_bar(self):
+        #return self.cleaned_data['bar'] or None
 """
 class ActivitySheetForm(forms.ModelForm):
 	class Meta:

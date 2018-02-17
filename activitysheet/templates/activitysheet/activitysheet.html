@@ -1,25 +1,44 @@
 <h1>Daily Timesheet - {{ user.username }}</h1>
 <h4>{{ day_of_week }} {{ activitysheet.date }}</h4>
-<table class="table table-bordered">
+<table class="table table-sm table-bordered">
+  <tr><th>Job</th><th>Start Time</th><th>End Time</th></tr>
 {% for activity in activities %}
   <tr>
     <td>{{ activity.name }}</td>
     <td>{{ activity.start_time }}</td>
     <td>{{ activity.end_time }}</td>
-    <td><a href="{% url 'updateActivity' activity.id %}">
+    <td>
+      <form action="{% url 'updateActivityForm' activity.id %}" method="get">
+        {% csrf_token %}
+        <input type="submit", value="Edit">
+      </form>
+      <form action="{% url 'deleteActivity' activity.id %}" method="post">
+        {% csrf_token %}
+        <input type="submit", value="Delete">
+      </form>
+    <!--
+      <a href="{% url 'updateActivity' activity.id %}">
       <button type="button" name="button">Update</button></a>
       <a href="{% url 'deleteActivity' activity.id %}">
       <button type="button" name="button">Delete</button></a></td>
+      -->
     </td>
   </tr>
 {% endfor %}
+  <tr>
+    <td class="center-td-text">
+      <form action="{% url 'addActivity' activitysheet.id %}" method="post">
+        {% csrf_token %}
+        {{ form.name }}
+    </td>
+    <td class="center-td-text">
+        {{ form.start_time }}
+    </td>
+    <td class="center-td-text">
+        {{ form.end_time }}
+    </td>
+    <td>
+        <input type="submit" value="Add" {% if not form %}hidden{% endif %} />
+    </td>
+  </tr>
 </table>
-<form action="{% url 'addActivity' activitysheet.id %}" method="post">
-  <div class="form-group">
-    {% csrf_token %}
-    <table class='table table-sm'>
-    {{ form.as_table }}
-    </table>
-  </div>
-<input type="submit" value="Submit" />
-</form>

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 from .secrets import SECRET_KEY
 import os
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -107,6 +108,13 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'America/Chicago'
+
+TIME_INPUT_FORMATS = [
+    '%I:%M %p',
+    '%H:%M:%S',     # '14:30:59'
+    '%H:%M:%S.%f',  # '14:30:59.000200'
+    '%H:%M',        # '14:30'
+]
 
 USE_I18N = True
 

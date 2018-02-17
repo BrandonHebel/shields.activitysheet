@@ -10,9 +10,12 @@ class DailyActivitySheet(models.Model):
 
 class Activity(models.Model):
 	activitysheet = models.ForeignKey(DailyActivitySheet, on_delete=models.CASCADE)
-	name = models.CharField(max_length=100)
-	start_time = models.TimeField()
-	end_time = models.TimeField()
+	name = models.CharField(max_length=100, blank=True)
+	start_time = models.TimeField(null=True, blank=True)
+	end_time = models.TimeField(null=True, blank=True)
 
 	def __str__(self):
 		return self.name
+
+	def is_complete(self):
+		return self.name and self.start_time and self.end_time
