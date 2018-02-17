@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 from .secrets import SECRET_KEY
+from .secrets import EMAIL_HOST_PASSWORD
 import os
 
 
@@ -122,6 +123,11 @@ USE_L10N = True
 
 USE_TZ = True
 
+# E-mail settings
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.1and1.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'webservice@brandonhebel.com'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/

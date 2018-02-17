@@ -4,6 +4,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout, get_user
+from django.core.mail import send_mail
 
 from .models import DailyActivitySheet, Activity
 from .forms import ActivityForm
@@ -40,6 +41,13 @@ def index(request):
         'day_of_week' : calendar.day_name[activitysheet.date.weekday()],
         'activitysheet' : activitysheet
     }
+    send_mail(
+        'Django Email Test',
+        'Test message for you good sir!',
+        'webservice@brandonhebel.com',
+        ['hebefrolfing@gmail.com'],
+        fail_silently= False
+    )
 
     return render(request, 'activitysheet/index.html', context)
 
@@ -59,7 +67,7 @@ class ActivityList(ListView):
         context = super().get_context_data(**kwargs)
         context['activitysheet'] = self.activitysheet
         return context
-        
+
 class ActivityUpdate(UpdateView):
     form_class = ActivityForm
     model = Activity
