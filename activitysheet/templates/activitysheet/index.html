@@ -3,7 +3,6 @@
 {% block stylesheet %}<link rel="stylesheet" type="text/css" href="{% static '/activitysheet/css/style.css' %}">{% endblock %}
 {% block title %}<title>Daily Timesheet</title>{% endblock %}
 {% block content %}
-  {% include "activitysheet/navbar.html" %}
   {% include 'activitysheet/activitysheet.html' %}
 {% endblock %}
-{% block javascript %}<script src="{% static 'activitysheet/js/shields.activitysheet.js' %}"></script>{% endblock %}
+{% block javascript %}{% endblock %}
