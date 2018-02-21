@@ -1,18 +1,21 @@
 from django.db import models
 from django.conf import settings
 
-class DailyActivitySheet(models.Model):
+class ActivitySheet(models.Model):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 	date = models.DateField()
+	is_complete = models.BooleanField(default=False)
+	total_time = models.DecimalField(default=0.00, max_digits=4, decimal_places=2)
 
 	def __str__(self):
-		return self.date.strftime('%m/%d/%Y')
+		return '{} {}'.format(self.user.username, self.date.strftime('%m/%d/%Y'))
 
 class Activity(models.Model):
-	activitysheet = models.ForeignKey(DailyActivitySheet, on_delete=models.CASCADE)
+	activitysheet = models.ForeignKey(ActivitySheet, on_delete=models.CASCADE)
 	name = models.CharField(max_length=100, blank=True)
 	start_time = models.TimeField(null=True, blank=True)
 	end_time = models.TimeField(null=True, blank=True)
+	total_time = models.DecimalField(null=True, blank=True, max_digits=4, decimal_places=2)
 
 	def __str__(self):
 		return self.name

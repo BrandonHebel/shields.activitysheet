@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import DailyActivitySheet, Activity
+from .models import ActivitySheet, Activity
 
-admin.site.register(DailyActivitySheet)
+admin.site.register(ActivitySheet)
 admin.site.register(Activity)

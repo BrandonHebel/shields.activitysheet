@@ -7,8 +7,10 @@
         {% if form.errors %}
           <p>There are errors!</p>
         {% endif %}
-        {{ form }}
+        <table>
+        {{ form.as_ul }}
         <input type="submit" value="Register">
+      </table>
       </form>
     </div>
   {% endblock %}

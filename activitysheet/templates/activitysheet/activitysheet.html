@@ -1,18 +1,24 @@
 <h1>Daily Timesheet - {{ user.username }}</h1>
 <h4>{{ day_of_week }} {{ activitysheet.date }}</h4>
 <table class="table table-sm table-bordered">
-  <tr><th>Job</th><th>Start Time</th><th>End Time</th></tr>
+  <tr>
+    <th>Job</th><th>Start Time</th><th>End Time</th>
+  {% if activitysheet.is_complete %}
+    <th>Total Time</th>
+  {% endif %}
+  </tr>
 {% for activity in activities %}
   <tr>
     <td>{{ activity.name }}</td>
     <td>{{ activity.start_time }}</td>
     <td>{{ activity.end_time }}</td>
     <td>
-      <form action="{% url 'updateActivityForm' activity.id %}" method="get">
+      {% if not activitysheet.is_complete %}
+      <form action="{% url 'updateActivityForm' activity.id %}" method="get" class='make-inline'>
         {% csrf_token %}
         <input type="submit", value="Edit">
       </form>
-      <form action="{% url 'deleteActivity' activity.id %}" method="post">
+      <form action="{% url 'deleteActivity' activity.id %}" method="post" class='make-inline'>
         {% csrf_token %}
         <input type="submit", value="Delete">
       </form>
@@ -22,6 +28,9 @@
       <a href="{% url 'deleteActivity' activity.id %}">
       <button type="button" name="button">Delete</button></a></td>
       -->
+      {% else %}
+        {{ activity.total_time }} hrs
+      {% endif %}
     </td>
   </tr>
 {% endfor %}
@@ -39,6 +48,16 @@
     </td>
     <td>
         <input type="submit" value="Add" {% if not form %}hidden{% endif %} />
+      </form>
     </td>
   </tr>
 </table>
+{% if not activitysheet.is_complete %}
+  <br/><br/>
+  <form action= "{% url 'complete_activitysheet' activitysheet.id %}" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Turn-In Timesheet" />
+  </form>
+{% else %}
+  <h4>Timesheet Turned-In : {{ activitysheet.total_time }} hours total</h4>
+{% endif %}

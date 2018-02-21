@@ -3,7 +3,7 @@
   {% block content %}
   <h1>Timesheets</h1>
     <ul>
-    {% for activitysheet in dailyactivitysheet_list %}
+    {% for activitysheet in activitysheet_list %}
       <a href="{% url 'viewActivities' activitysheet.id %}"><li>{{ activitysheet.date }}</li></a>
     {% endfor %}
     </ul>

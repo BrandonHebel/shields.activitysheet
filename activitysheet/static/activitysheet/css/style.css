@@ -2,5 +2,8 @@ th {
   text-align: center;
 }
 .center-td-text {
-  text-align: center; 
+  text-align: center;
+}
+.make-inline {
+  display: inline;
 }

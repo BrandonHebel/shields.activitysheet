@@ -3,12 +3,23 @@
 {% block content %}
   <h3>Timesheet - {{ activitysheet.date }}</h3>
   <table class="table table-bordered table-sm">
+    <thead>
+      <th></th>
+      <th>Start Time</th>
+      <th>End Time</th>
+      <th>Total Time</th>
   {% for activity in activity_list %}
     <tr>
       <td>{{ activity.name }}</td>
       <td>{{ activity.start_time }}</td>
       <td>{{ activity.end_time }}</td>
+      <td>{{ activity.total_time }} hrs</td>
     </tr>
   {% endfor %}
   </table>
+  {% if activitysheet.is_complete %}
+    <ul><li>
+      <h4>{{ activitysheet.total_time }} hours total</h4>
+    </li></ul>
+  {% endif %}
 {% endblock %}
