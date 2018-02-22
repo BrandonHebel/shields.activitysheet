@@ -58,6 +58,7 @@ target/
 *.pyc
 __pycache__/
 production_settings.py
+settings.py
 secrets.py
 todo.txt
 

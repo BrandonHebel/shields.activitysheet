@@ -65,7 +65,7 @@ class ActivityList(ListView):
 	def get_queryset(self):
 		self.activitysheet = get_object_or_404(
 			ActivitySheet,
-			id=self.kwargs['activitysheet_id']
+			id=self.kwargs['pk']
 		)
 		return Activity.objects.filter(activitysheet=self.activitysheet)
 
@@ -143,12 +143,12 @@ def generate_pdf(request, activitysheet):
 
 def send_pdf(request, activitysheet):
 	pdf = generate_pdf(request, activitysheet)
-	now = datetime.now().strftime('%m-%d-%Y')
-	title = "Timesheet - " +  request.user.username + " " + now
-	content = ""
+	date = activitysheet.date.strftime('%m-%d-%Y')
+	title = 'Timesheet - {} {}'.format(request.user.username, date)
+	content = '{} - Total Hours: {}'.format(request.user.username, activitysheet.total_time)
 	print("HR_EMAIL: " + HR_EMAIL)
-	msg = EmailMessage(title, content, to=[request.user.email, HR_EMAIL])
-	msg.attach('Timesheet_{}_{}.pdf'.format(request.user.username, now), pdf, 'application/pdf')
+	msg = EmailMessage(title, content, 'webservice@brandonhebel.com', [request.user.email, HR_EMAIL])
+	msg.attach('Timesheet_{}_{}.pdf'.format(request.user.username, date), pdf, 'application/pdf')
 	msg.content_subtype = "html"
 	msg.send()
 
@@ -175,7 +175,6 @@ class ActivityUpdate(UpdateView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		context['activity_id'] = self.kwargs['pk']
-		print(vars(context['form']['start_time'].field.widget))
 		return context
 
 	def get_initial(self):
@@ -195,7 +194,7 @@ def deleteActivity(request, pk):
 	return redirect('index')
 
 
-def addActivity(request, activitysheet_id):
+def addActivity(request, pk):
 	post = request.POST.copy()
 	post['start_time'] = convertTime(post['start_time']) if post['start_time'] else None
 	post['end_time'] = convertTime(post['end_time']) if post['end_time'] else None
@@ -205,10 +204,9 @@ def addActivity(request, activitysheet_id):
 		end_time = form.cleaned_data['end_time']
 		total_time = None
 		if start_time and end_time:
-			total_time = datetime.combine(date.today(), end_time) - datetime.combine(date.today(), start_time)
-			total_time = total_time.seconds / 3600
+			total_time = calcHours(start_time, end_time)
 		new_activity = Activity(
-			activitysheet=ActivitySheet.objects.get(pk=activitysheet_id),
+			activitysheet=ActivitySheet.objects.get(pk=pk),
 			name=form.cleaned_data['name'],
 			start_time=start_time,
 			end_time=end_time,
@@ -223,14 +221,23 @@ def updateActivity(request, pk):
 	post['end_time']= convertTime(post['end_time']) if post['end_time'] else None
 	form = ActivityForm(post)
 	if form.is_valid():
+		start_time = form.cleaned_data['start_time']
+		end_time = form.cleaned_data['end_time']
+		total_time = None
+		if start_time and end_time:
+			total_time = calcHours(start_time, end_time)
 		activity = Activity.objects.get(pk=pk)
 		activity.name = form.cleaned_data['name']
 		activity.start_time = form.cleaned_data['start_time']
 		activity.end_time = form.cleaned_data['end_time']
+		activity.total_time = total_time
 		activity.save()
-
 	return redirect('index')
 
+
+def calcHours(start, end):
+	total_time = datetime.combine(date.today(), end) - datetime.combine(date.today(), start)
+	return total_time.seconds / 3600
 ###################
 # function convertTime
 # accepts a string in format 01:30 PM and returns a string in format 13:30

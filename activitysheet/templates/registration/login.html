@@ -9,12 +9,13 @@
       {% endif %}
       <form method="post" action="{% url 'login' %}">
         {% csrf_token %}
+        <ul>
+          <li>username: {{ form.username }}</li>
+          <li>password: {{ form.password }}</li>
 
-        <p>username: {{ form.username }}</p>
-        <p>password: {{ form.password }}</p>
-
-        <p><input type="submit" value="login" label="username"></p>
-        <input type="hidden" name="next" value="{{ next }}" label="password">
+          <li><input type="submit" value="Login" label="username"></li>
+          <input type="hidden" name="next" value="{{ next }}" label="password">
       </form>
-      <a href="{% url 'register' %}"><button type="button" name="button">Register</button></a>
+          <li><a href="{% url 'register' %}"><button type="button" name="button">Register</button></a></li>
+        </ul>
   {% endblock %}
