@@ -7,12 +7,12 @@ from . import views
 
 urlpatterns = [
 	path('', views.index, name='index'),
-	path('addActivity/<int:pk>', views.addActivity, name='addActivity'),
+	path('addActivity/<int:pk>', login_required(views.addActivity), name='addActivity'),
 	path('register', views.register, name='register'),
 	path('viewSheets', login_required(ActivitySheetList.as_view()), name='viewSheets'),
-	path('viewActivities/<int:pk>', ActivityList.as_view(), name='viewActivities'),
-	path('updateActivityForm/<int:pk>', ActivityUpdate.as_view(), name="updateActivityForm"),
-	path('updateActivity/<int:pk>', views.updateActivity, name="updateActivity"),
-	path('deleteActivity/<int:pk>', views.deleteActivity, name='deleteActivity'),
-	path('complete_activitysheet/<int:pk>', views.complete_activitysheet, name='complete_activitysheet')
+	path('viewActivities/<int:pk>', login_required(ActivityList.as_view()), name='viewActivities'),
+	path('updateActivityForm/<int:pk>', login_required(ActivityUpdate.as_view()), name="updateActivityForm"),
+	path('updateActivity/<int:pk>', login_required(views.updateActivity), name="updateActivity"),
+	path('deleteActivity/<int:pk>', login_required(views.deleteActivity), name='deleteActivity'),
+	path('complete_activitysheet/<int:pk>', login_required(views.complete_activitysheet), name='complete_activitysheet')
 ]

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
+from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout, get_user
 from django.core.mail import EmailMessage
@@ -152,14 +153,18 @@ def send_pdf(request, activitysheet):
 	msg.content_subtype = "html"
 	msg.send()
 
-
 def complete_activitysheet(request, pk):
+	if request.method != 'POST':
+		return redirect('index')
 	activitysheet = ActivitySheet.objects.get(pk=pk)
+	total_time = 0
 	for activity in activitysheet.activity_set.all():
-		activitysheet.total_time += activity.total_time
-	activitysheet.is_complete = True
+		total_time += activity.total_time
+	activitysheet.total_time = total_time
 	activitysheet.save()
 	send_pdf(request, activitysheet)
+	activitysheet.is_complete = True
+	activitysheet.save()
 	return redirect('index')
 
 
@@ -190,49 +195,52 @@ class ActivityUpdate(UpdateView):
 
 
 def deleteActivity(request, pk):
+	if request.method != 'POST':
+		return redirect('index')
 	Activity.objects.get(pk=pk).delete()
 	return redirect('index')
 
 
 def addActivity(request, pk):
-	post = request.POST.copy()
-	post['start_time'] = convertTime(post['start_time']) if post['start_time'] else None
-	post['end_time'] = convertTime(post['end_time']) if post['end_time'] else None
-	form = ActivityForm(post)
-	if form.is_valid():
-		start_time = form.cleaned_data['start_time']
-		end_time = form.cleaned_data['end_time']
-		total_time = None
-		if start_time and end_time:
-			total_time = calcHours(start_time, end_time)
-		new_activity = Activity(
-			activitysheet=ActivitySheet.objects.get(pk=pk),
-			name=form.cleaned_data['name'],
-			start_time=start_time,
-			end_time=end_time,
-			total_time=total_time)
-		new_activity.save()
+	if request.method != 'POST':
+		return redirect('index')
+	name, start_time, end_time, total_time = add_or_update_activity(request, pk)
+	new_activity = Activity(
+		activitysheet=ActivitySheet.objects.get(pk=pk),
+		name=name,
+		start_time=start_time,
+		end_time=end_time,
+		total_time=total_time
+	)
+	new_activity.save()
 	return redirect('index')
 
 
 def updateActivity(request, pk):
+	if request.method != 'POST':
+		return redirect('index')
+	name, start_time, end_time, total_time = add_or_update_activity(request, pk)
+	activity = Activity.objects.get(pk=pk)
+	activity.name = name
+	activity.start_time = start_time
+	activity.end_time = end_time
+	activity.total_time = total_time
+	activity.save()
+	return redirect('index')
+
+def add_or_update_activity(request, pk):
 	post = request.POST.copy()
 	post['start_time']= convertTime(post['start_time']) if post['start_time'] else None
 	post['end_time']= convertTime(post['end_time']) if post['end_time'] else None
 	form = ActivityForm(post)
 	if form.is_valid():
+		name = form.cleaned_data['name']
 		start_time = form.cleaned_data['start_time']
 		end_time = form.cleaned_data['end_time']
 		total_time = None
 		if start_time and end_time:
 			total_time = calcHours(start_time, end_time)
-		activity = Activity.objects.get(pk=pk)
-		activity.name = form.cleaned_data['name']
-		activity.start_time = form.cleaned_data['start_time']
-		activity.end_time = form.cleaned_data['end_time']
-		activity.total_time = total_time
-		activity.save()
-	return redirect('index')
+	return name, start_time, end_time, total_time
 
 
 def calcHours(start, end):
@@ -274,6 +282,5 @@ def register(request):
 	return render(request, 'registration/register.html', context)
 
 
-def logout_view(request):
-	logout(request)
-	return render(request, 'registration/logged_out.html')
+def view_404(request):
+	return redirect('index')
