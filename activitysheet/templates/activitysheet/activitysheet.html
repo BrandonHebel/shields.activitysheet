@@ -16,11 +16,11 @@
       {% if not activitysheet.is_complete %}
       <form action="{% url 'updateActivityForm' activity.id %}" method="get" class='make-inline'>
         {% csrf_token %}
-        <input type="submit", value="Edit">
+        <input class="btn btn-secondary" type="submit", value="Edit">
       </form>
       <form action="{% url 'deleteActivity' activity.id %}" method="post" class='make-inline'>
         {% csrf_token %}
-        <input type="submit", value="Delete">
+        <input class="btn btn-secondary" type="submit", value="Delete">
       </form>
     <!--
       <a href="{% url 'updateActivity' activity.id %}">
@@ -47,17 +47,17 @@
         {{ form.end_time }}
     </td>
     <td>
-        <input type="submit" value="Add" {% if not form %}hidden{% endif %} />
+        <input class="btn btn-primary" type="submit" value="Add" {% if not form %}hidden{% endif %} />
       </form>
     </td>
   </tr>
 </table>
+<ul>
+  <li><h4>{{ activitysheet.total_time }} hrs Total</h4></li>
 {% if not activitysheet.is_complete %}
-  <br/><br/>
-  <form action= "{% url 'complete_activitysheet' activitysheet.id %}" method="post">
-    {% csrf_token %}
-    <input type="submit" value="Turn-In Timesheet" />
-  </form>
+  <li><a href="{% url 'viewActivities' activitysheet.id 1 %}">
+    <button type="button" class="btn btn-primary">Turn-in Timesheet</button></a></li>
 {% else %}
-  <h4>Timesheet Turned-In : {{ activitysheet.total_time }} hours total</h4>
+  <li><h4>Timesheet Turned-In</h4></li>
 {% endif %}
+</ul>

@@ -4,7 +4,7 @@
   <h1>Timesheets</h1>
     <ul>
     {% for activitysheet in activitysheet_list %}
-      <a href="{% url 'viewActivities' activitysheet.id %}"><li>{{ activitysheet.date }}</li></a>
+      <a href="{% url 'viewActivities' activitysheet.id 0 %}"><li>{{ activitysheet.date }}</li></a>
     {% endfor %}
     </ul>
   {% endblock %}

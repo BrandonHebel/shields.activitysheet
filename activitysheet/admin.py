@@ -4,6 +4,7 @@ from .models import ActivitySheet, Activity
 
 class ActivityInLine(admin.TabularInline):
     model = Activity
+    extra = 0
 
 class ActivitySheetAdmin(admin.ModelAdmin):
     fields = ('user', 'date', 'is_complete', 'total_time')

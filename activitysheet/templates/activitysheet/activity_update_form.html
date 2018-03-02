@@ -4,7 +4,7 @@
       <form action="{% url 'updateActivity' activity_id %}" method="post">
         {% csrf_token %}
         {{ form.as_table}}
-        <tr><td><input type="submit" value="Update" /></td></tr>
+        <tr><td><input class="btn btn-primary" type="submit" value="Update" /></td></tr>
       </form>
     </table>
   {% endblock %}

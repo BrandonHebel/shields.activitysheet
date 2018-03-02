@@ -1,24 +1,17 @@
+from datetime import datetime, date
+import calendar
+
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
 from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout, get_user
-from django.core.mail import EmailMessage
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4, inch, portrait
-from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from django.http import HttpResponse
-from io import BytesIO
 
 from .models import ActivitySheet, Activity
 from .forms import ActivityForm, RegistrationForm
-from .secrets import HR_EMAIL
-from datetime import datetime, date
-import calendar
-
+from .pdf import generate_pdf, send_pdf, view_pdf
 
 def index(request):
 	if not request.user.is_authenticated:
@@ -73,99 +66,25 @@ class ActivityList(ListView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		context['activitysheet'] = self.activitysheet
+		context['submitting'] = self.kwargs['submitting']
 		return context
 
-def generate_pdf(request, activitysheet):
-	buffer1 = BytesIO()
-	doc = SimpleDocTemplate(
-		buffer1,
-		pagesize=A4,
-		rightMargin=30,leftMargin=30,
-		topMargin=30,
-		bottomMargin=18
-	)
-	doc.pagesize = portrait(A4)
-	elements = []
-
-	# Generate table data
-	data = [['', 'Start Time', 'End Time', 'Total Time']]
-	activities = activitysheet.activity_set.all()
-	for activity in activities:
-		data.append([
-			activity.name,
-			activity.start_time.strftime('%I:%M %p'),
-			activity.end_time.strftime('%I:%M %p'),
-			str(activity.total_time) + " hrs"
-		])
-
-	#Configure style and word wrap
-	style = TableStyle([('ALIGN',(1,1),(-2,-2),'RIGHT'),
-                       ('TEXTCOLOR',(1,1),(-2,-2),colors.red),
-                       ('VALIGN',(0,0),(0,-1),'TOP'),
-                       ('TEXTCOLOR',(0,0),(0,-1),colors.blue),
-                       ('ALIGN',(0,-1),(-1,-1),'CENTER'),
-                       ('VALIGN',(0,-1),(-1,-1),'MIDDLE'),
-                       ('TEXTCOLOR',(0,-1),(-1,-1),colors.green),
-                       ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
-                       ('BOX', (0,0), (-1,-1), 0.25, colors.black),
-                       ])
-
-	s = getSampleStyleSheet()
-	style_body_text = s["BodyText"]
-	style_body_text.wordWrap = 'CJK'
-	style_heading = s['Heading1']
-
-	#Build the data
-	elements.append(Paragraph(
-		"Daily Timesheet - " +
-		activitysheet.date.strftime('%x') + " - " +
-		calendar.day_name[activitysheet.date.weekday()],
-		style_heading
-		)
-	)
-	elements.append(Paragraph(request.user.username, style_heading))
-	elements.append(Spacer(0, 0.1*inch))
-	data2 = [[Paragraph(cell, style_body_text) for cell in row] for row in data]
-	t=Table(data2)
-	t.setStyle(style)
-
-	#Send the data and build the file
-	elements.append(t)
-	elements.append(Spacer(0, 0.1*inch))
-	elements.append(Paragraph(str(activitysheet.total_time) + " hours total", style_heading))
-	doc.build(elements)
-
-	#p.showPage()
-	#p.save()
-	pdf = buffer1.getvalue()
-	buffer1.close()
-	return pdf
-
-
-def send_pdf(request, activitysheet):
-	pdf = generate_pdf(request, activitysheet)
-	date = activitysheet.date.strftime('%m-%d-%Y')
-	title = 'Timesheet - {} {}'.format(request.user.username, date)
-	content = '{} - Total Hours: {}'.format(request.user.username, activitysheet.total_time)
-	print("HR_EMAIL: " + HR_EMAIL)
-	msg = EmailMessage(title, content, 'webservice@brandonhebel.com', [request.user.email, HR_EMAIL])
-	msg.attach('Timesheet_{}_{}.pdf'.format(request.user.username, date), pdf, 'application/pdf')
-	msg.content_subtype = "html"
-	msg.send()
 
 def complete_activitysheet(request, pk):
 	if request.method != 'POST':
 		return redirect('index')
 	activitysheet = ActivitySheet.objects.get(pk=pk)
-	total_time = 0
-	for activity in activitysheet.activity_set.all():
-		total_time += activity.total_time
-	activitysheet.total_time = total_time
-	activitysheet.save()
+	updateTotalHours(activitysheet)
 	send_pdf(request, activitysheet)
 	activitysheet.is_complete = True
 	activitysheet.save()
 	return redirect('index')
+
+def view_activitysheet_pdf(request, pk):
+	if request.method != 'POST':
+		return redirect('viewSheets')
+	activitysheet = ActivitySheet.objects.get(pk=pk)
+	return view_pdf(request, activitysheet)
 
 
 class ActivityUpdate(UpdateView):
@@ -197,7 +116,10 @@ class ActivityUpdate(UpdateView):
 def deleteActivity(request, pk):
 	if request.method != 'POST':
 		return redirect('index')
-	Activity.objects.get(pk=pk).delete()
+	activity = Activity.objects.get(pk=pk)
+	activitysheet = activity.activitysheet
+	activity.delete()
+	updateTotalHours(activitysheet)
 	return redirect('index')
 
 
@@ -213,6 +135,9 @@ def addActivity(request, pk):
 		total_time=total_time
 	)
 	new_activity.save()
+	print(new_activity.is_complete())
+	if new_activity.is_complete():
+		updateTotalHours(new_activity.activitysheet)
 	return redirect('index')
 
 
@@ -226,6 +151,8 @@ def updateActivity(request, pk):
 	activity.end_time = end_time
 	activity.total_time = total_time
 	activity.save()
+	if activity.is_complete():
+		updateTotalHours(activity.activitysheet)
 	return redirect('index')
 
 def add_or_update_activity(request, pk):
@@ -251,6 +178,13 @@ def calcHours(start, end):
 # accepts a string in format 01:30 PM and returns a string in format 13:30
 # also rounds to the nearest specified MINUTE_INCREMENT
 
+
+def updateTotalHours(activitysheet):
+	total_time = 0
+	for activity in activitysheet.activity_set.all():
+		total_time += activity.total_time
+	activitysheet.total_time = total_time
+	activitysheet.save()
 
 def convertTime(time):
 	MINUTE_INCREMENT = 15
