@@ -85,7 +85,7 @@ def send_pdf(request, activitysheet):
 def view_pdf(request, activitysheet):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="Timesheet_{}_{}.pdf"'.format(
-		request.user.username, activitysheet.date.strftime('%m.%d.%Y')
+		request.user.username, activitysheet.date.strftime('%m-%d-%Y')
 	)
     response.write(generate_pdf(request, activitysheet))
     return response

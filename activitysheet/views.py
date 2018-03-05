@@ -74,6 +74,8 @@ def complete_activitysheet(request, pk):
 	if request.method != 'POST':
 		return redirect('index')
 	activitysheet = ActivitySheet.objects.get(pk=pk)
+	if activitysheet.is_complete:
+		return redirect('index')
 	updateTotalHours(activitysheet)
 	send_pdf(request, activitysheet)
 	activitysheet.is_complete = True
@@ -119,7 +121,7 @@ def deleteActivity(request, pk):
 	activity = Activity.objects.get(pk=pk)
 	activitysheet = activity.activitysheet
 	activity.delete()
-	updateTotalHours(activitysheet)
+	activity.activitysheet.update_total_time()
 	return redirect('index')
 
 
@@ -136,8 +138,7 @@ def addActivity(request, pk):
 	)
 	new_activity.save()
 	print(new_activity.is_complete())
-	if new_activity.is_complete():
-		updateTotalHours(new_activity.activitysheet)
+	new_activity.activitysheet.update_total_time()
 	return redirect('index')
 
 
@@ -151,8 +152,7 @@ def updateActivity(request, pk):
 	activity.end_time = end_time
 	activity.total_time = total_time
 	activity.save()
-	if activity.is_complete():
-		updateTotalHours(activity.activitysheet)
+	activity.activitysheet.update_total_time()
 	return redirect('index')
 
 def add_or_update_activity(request, pk):

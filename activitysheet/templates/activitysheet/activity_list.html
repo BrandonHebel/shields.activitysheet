@@ -20,7 +20,7 @@
   <ul><li>
     <h4>{{ activitysheet.total_time }} hrs Total</h4>
   </li></ul>
-  {% if submitting == 1 %}
+  {% if not activitysheet.is_complete and submitting == 1 %}
     <ul>
     <li><h4>Are you sure you want to turn-in this timesheet?</h4></li>
     <form action= "{% url 'complete_activitysheet' activitysheet.id %}" method="post">
@@ -28,6 +28,7 @@
       <li><input class="btn btn-success" type="submit" value="Yes" /></li>
     </form>
       <li><a href="/"><button type="button" class="btn btn-danger">No</button></a></li>
+    </ul>
   {% else %}
   <form action="{% url 'view_activitysheet_pdf' activitysheet.id %}" method="post" >
     {% csrf_token %}

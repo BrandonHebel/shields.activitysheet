@@ -10,6 +10,14 @@ class ActivitySheet(models.Model):
 	def __str__(self):
 		return '{} {}'.format(self.user.username, self.date.strftime('%m/%d/%Y'))
 
+	def update_total_time(self):
+		total_time = 0
+		for activity in self.activity_set.all():
+			if activity.is_complete():
+				total_time += activity.total_time
+		self.total_time = total_time
+		self.save()
+
 class Activity(models.Model):
 	activitysheet = models.ForeignKey(ActivitySheet, on_delete=models.CASCADE)
 	name = models.CharField(max_length=100, blank=True)
